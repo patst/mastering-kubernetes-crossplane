@@ -1,0 +1,7 @@
+apiVersion: storage.heise.masterk8s.io/v1alpha1
+kind: MyAccount
+metadata:
+  name: ps-test-crossplane
+spec:
+  resourceGroupName: "ps-test-cp"
+  storageAccountName: "sapstestasdf"

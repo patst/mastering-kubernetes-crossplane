@@ -1,0 +1,62 @@
+# Composition lets Crossplane know what to do when someone creates a Composite Resource
+# see https://docs.crossplane.io/v1.16/concepts/composition/
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: account-composition
+  labels:
+    crossplane.io/xrd: xmyaccounts.storage.heise.masterk8s.io
+spec:
+  compositeTypeRef:
+    apiVersion: storage.heise.masterk8s.io/v1alpha1
+    kind: XMyAccount
+  mode: Pipeline
+  pipeline:
+    - functionRef:
+        name: function-patch-and-transform
+      step: patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: resourceGroup
+            base:
+              apiVersion: azure.upbound.io/v1beta1
+              kind: ResourceGroup
+              spec:
+                forProvider:
+                  location: "germanywestcentral"
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.resourceGroupName
+                toFieldPath: metadata.name
+            readinessChecks:
+              - matchCondition:
+                  status: 'True'
+                  type: Ready
+                type: MatchCondition
+          - name: storageAccount
+            # https://marketplace.upbound.io/providers/upbound/provider-azure-storage/v1.3.0/resources/storage.azure.upbound.io/Account/v1beta1
+            base:
+              apiVersion: storage.azure.upbound.io/v1beta1
+              kind: Account
+              spec:
+                forProvider:
+                  accountReplicationType: "LRS"
+                  accountTier: "Standard"
+                  location: "germanywestcentral"
+                  resourceGroupNameSelector:
+                    # makes sure the ResourceGroup created by this composition is match
+                    matchControllerRef: true
+                    # optional use the k8s label matching mechanism
+                    #matchLabels:
+                    #  some-label: "123"
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.storageAccountName
+                toFieldPath: metadata.name
+            readinessChecks:
+              - matchCondition:
+                  status: 'True'
+                  type: Ready
+                type: MatchCondition

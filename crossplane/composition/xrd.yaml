@@ -1,0 +1,42 @@
+# XRD = Composite Resource definition
+# Composite resource definitions (XRDs) define the schema for a custom API.
+# Users create composite resources (XRs) and Claims (XCs) using the API schema defined by an XRD.
+# Crossplane XRDs are like Kubernetes custom resource definitions.
+# see https://docs.crossplane.io/v1.16/concepts/composite-resource-definitions/
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xmyaccounts.storage.heise.masterk8s.io
+spec:
+  group: storage.heise.masterk8s.io
+  names:
+    kind: XMyAccount
+    plural: xmyaccounts
+  claimNames:
+    kind: MyAccount
+    plural: myaccounts
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            status:
+              type: object
+              properties:
+                resourceGroupName:
+                  type: string
+                storageAccountName:
+                  type: string
+            spec:
+              type: object
+              properties:
+                resourceGroupName:
+                  type: string
+                storageAccountName:
+                  type: string
+              required:
+                - resourceGroupName
+                - storageAccountName

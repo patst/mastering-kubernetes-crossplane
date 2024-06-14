@@ -1,0 +1,9 @@
+# composition functions can be called in compositions to do advanced templating
+# see https://docs.crossplane.io/v1.16/concepts/composition-functions/
+apiVersion: pkg.crossplane.io/v1beta1
+kind: Function
+metadata:
+  name: function-patch-and-transform
+spec:
+  # see https://github.com/crossplane-contrib/function-patch-and-transform
+  package: "xpkg.upbound.io/crossplane-contrib/function-patch-and-transform:v0.6.0"
