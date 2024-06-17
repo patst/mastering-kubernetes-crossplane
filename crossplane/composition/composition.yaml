@@ -4,8 +4,6 @@ apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
   name: account-composition
-  labels:
-    crossplane.io/xrd: xmyaccounts.storage.heise.masterk8s.io
 spec:
   compositeTypeRef:
     apiVersion: storage.heise.masterk8s.io/v1alpha1
