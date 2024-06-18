@@ -1,0 +1,40 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestSuite
+parallel: 4
+startKIND: true
+kindNodeCache: true
+skipClusterDelete: true # helpful for debugging
+timeout: 300
+testDirs:
+  - kuttl/tests/
+commands:
+  - command: kubectl version
+  - command: helm install crossplane --wait --create-namespace --namespace crossplane-system crossplane-stable/crossplane
+  - command: kubectl apply -f crossplane/provider.yaml # install provider(s)
+  - script: |
+      echo "waiting until the crossplane providers are ready"
+      sleep 40 # wait for providers to appear
+      kubectl get Provider.pkg.crossplane.io -o json
+      MAX_TRYS=60
+      TRY=0
+      while [[ $(kubectl get Provider.pkg.crossplane.io -o json |  jq '[.items[] | select(.status.conditions[] | select(.status != "True")).metadata.name] | length' ) -ne 0 ]]
+        do
+          echo "Waiting 10 seconds to check again if all Providers are Healthy. (${TRY} / ${MAX_TRYS})"
+          echo "Provider Status: $(kubectl get Provider.pkg.crossplane.io)"
+          sleep 10
+          echo "---"
+          ((TRY=TRY+1))
+          if [[ ${TRY} -gt ${MAX_TRYS} ]]; then
+          echo "did ${TRY} trys, exiting without all providers in sync"
+          break
+        fi
+      done
+      echo "Stopped waiting for providers"
+  - command: kubectl get pods -A
+  - command: kubectl get Provider.pkg.crossplane.io
+  - command: kubectl apply -f ./secret-crossplane-azure.yaml
+  - command: kubectl apply -f crossplane/providerconfig.yaml
+  - command: kubectl apply -f crossplane/function-patch-and-transform.yaml
+  - command: kubectl apply -f crossplane/composition/xrd.yaml
+  - command: kubectl apply -f crossplane/composition/composition.yaml
+

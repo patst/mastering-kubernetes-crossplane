@@ -1,0 +1,7 @@
+apiVersion: azure.upbound.io/v1beta1
+kind: ResourceGroup
+metadata:
+  name: ps-example-rg
+spec:
+  forProvider:
+    location: germanywestcentral

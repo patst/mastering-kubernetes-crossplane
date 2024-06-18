@@ -17,7 +17,7 @@ kind create cluster
 
 ```bash
 
-We use an Azure Service Principal to provision stuff in Azure Cloud:
+We use an Azure Service Principal to provision resources in Azure Cloud:
 
 ```bash
 az ad sp create-for-rbac \
@@ -43,7 +43,7 @@ helm install crossplane \
   --create-namespace
 ```
 
-## Live Demo
+## Demo
 
 1. show installed crossplane pods
 2. show installed Crossplane CRDs: `kubectl api-resources | grep crossplane`
@@ -57,3 +57,4 @@ helm install crossplane \
    => CRD created `kg crd | grep account`
 8. Create the matching composition `kubectl apply -f crossplane/composition/composition.yaml`
 9. Create a claim: `kubectl apply -f crossplane/composition/claim.yaml`
+10. Run the [KUTTL](https://kuttl.dev/) tests: `kubectl kuttl test --config ./kuttl/kuttl.yaml`
